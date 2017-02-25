@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Battleship Words</title>
+      <style>
+         @import url('https://fonts.googleapis.com/css?family=Black+Ops+One');
+         body { font-family:"Helvetica Neue",Helvetica,sans-serif; text-align:center; background-color:#000; margin:0; padding:0; }
+         .cell { width:2.5em; height:2.5em; border:1px solid #aaa; }
+         #container { position:relative; }
+         td { background-color: rgba(255,255,255,1); }
+         td:hover { background-color: rgba(255,255,0,.5); }
+         #p1.board { margin: 1em auto; border: 1em solid #09d; background-color:#fff; border-collapse: collapse; }
+         #p2.board { margin: 1em 1em; border: 1em solid #d00; background-color:#fff; border-collapse: collapse; }
+         table.#p1 th, table.#p2 th { font-weight: normal; font-family: "Helvetica Neue",Helvetica,sans-serif; font-size:.8em; }
+         th.top { background-color:#bbb; color:#000; height:24px; }
+         th.left { background-color:#bbb; color:#000; width:24px; }
+         table#p1, table#p2 { display:inline-table; margin-left:1em; }
+         input#input { font-size:1.8em; font-weight:bold; text-align:center; font-family:"Helvetica Neue",Helvetica,sans-serif; }
+         #bomb { background-image:url(bomb.png); background-repeat:no-repeat; }
+         .alphabet { display: inline-block; height: 50px; width: 42px; background-image: url(bomb.png); background-repeat: no-repeat; background-size: 100% 100%; padding-top: 1.1em; font-size: 2em; color:#000; 
+         filter:invert(1) sepia(1) saturate(50) brightness(.9) hue-rotate(180deg); 
+         } 
+         .alphabet:active { 
+            filter:invert(0) brightness(.9) sepia(1) saturate(50) hue-rotate(0deg); 
+         }
+         .alphabet:hover { 
+            filter:invert(1) brightness(.9) sepia(1) saturate(50) hue-rotate(0deg); 
+         }
+         td.cell span { font-size: 2em; font-weight: bold; }
+         .dialog { 
+            position:absolute;
+            left:25%;
+            top:18%;
+            background-color:#eee;
+            display: inline-table;
+            border: .5em solid #fff;
+            width:35em;
+            box-shadow: 1em 1em 1em rgba(0,0,0,.5);
+            overflow:hidden;
+         }
+         #scoreboard h1 { font-family: 'Stencil', cursive; 
+            text-align:center;
+            margin:0;padding:0;
+            width:8em;
+         }
+         .dialog h1 { background-color:#09d; color:#eee; padding: .5em 0; margin-top:0; margin-bottom:0.2em; font-family:Stencil; text-shadow:2px 2px 2px rgba(0,0,0,.4); }
+         .dialog input { 
+            font-size: 1.5em;
+            text-align: center;
+            font-family: "Helvetica Neue",Helvetica,sans-serif;
+            border-bottom: 5px solid #000;
+            border-top: 0px;
+            border-left: 0px;
+            text-transform: uppercase;
+         }
+         .dialog section { font-size:1.5em; margin: 0 1em 1em 1em; float:left;}
+         .dialog p { margin: 0 ; padding: 0 ; text-align:left; font-size:.8em; }
+         #wordpick { background-color:#eee; }
+         #wordpick td { text-align:left; background-color:#eee; padding-bottom:1em; }
+         #wordpick tr { padding-top:.5em; }
+         #scoreboard { display:inline-block; width:15em; color:#ddd; position:absolute; 
+            top:0px;left:0px;bottom:0px;
+            background: #cedce7;
+            background: -moz-linear-gradient(top, #cedce7 0%, #596a72 100%);
+            background: -webkit-linear-gradient(top, #cedce7 0%,#596a72 100%);
+            background: linear-gradient(to bottom, #cedce7 0%,#596a72 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', endColorstr='#596a72',GradientType=0 );
+ 
+         }
+         #scoreboard h1 { 
+            margin-top:2em; text-shadow:-2px -2px 2px rgba(0,0,0,.3), 2px 2px 2px rgba(0,0,0,.3), -2px 2px 2px rgba(0,0,0,.3), 2px -2px 2px rgba(0,0,0,.3) ;
+         }
+         .ok {
+            display:inline-block;
+            height:64px;
+            width:64px;
+            background-image:url(ok.png);
+            background-repeat: no-repeat;
+         }
+         .notok {
+            display:inline-block;
+            height:64px;
+            width:64px;
+            background-image:url(notok.png);
+            background-repeat: no-repeat;
+
+         }
+      </style>
+      <script src="all6.js"></script>
+   </head>
+   <body>
+      <div id="scoreboard">
+         <div class='title'><h1>Battleship: Words</h1></div>
+         <div class='mywords'>
+            <h1>My Words</h1>
+            <section id='mywords'>
+               <div id='my2l'></div>
+               <div id='my3l'></div>
+               <div id='my4l'></div>
+               <div id='my5l'></div>
+               <div id='my6l'></div>
+            </section>
+         </div>
+      </div>
+      <div id="container">
+      <div id="newgame" class='dialog'>
+         <h1>Battleship: Words</h1>
+         <div class='wizard'>
+            <section id='help'>
+            <p>The goal of Battleship: Words is to find your opponents words before they discover yours. Think Battleship, but with words instead of ships. To begin, choose 5 words from 2 to 6 letters long (one word for each word length).  Words must be valid English and appear in the standard Scrabble dictionary. Once we have your words, we will place them on the playfield.</p>
+            </section>
+            <section id='picks'>
+               <table id='wordpick'>
+                  <tr>
+                     <th>2 Letter Word</th>
+                     <td>
+                        <input type='text' size='1' class='letter' id='w2l1'/>
+                        <input type='text' size='1' class='letter' id='w2l2'/>
+                     </td>
+                     <td><span id='w2chk'></span></td>
+                  </tr>
+                  <tr>
+                     <th>3 Letter Word</th>
+                     <td>
+                        <input type='text' size='1' class='letter' id='w3l1'/>
+                        <input type='text' size='1' class='letter' id='w3l2'/>
+                        <input type='text' size='1' class='letter' id='w3l3'/>
+                     </td>
+                     <td><span id='w3chk'></span></td>
+                  </tr>
+                  <tr>
+                     <th>4 Letter Word</th>
+                     <td>
+                        <input type='text' size='1' class='letter' id='w4l1'/>
+                        <input type='text' size='1' class='letter' id='w4l2'/>
+                        <input type='text' size='1' class='letter' id='w4l3'/>
+                        <input type='text' size='1' class='letter' id='w4l4'/>
+                     </td>
+                     <td><span id='w4chk'></span></td>
+                  </tr>
+                  <tr>
+                     <th>5 Letter Word</th>
+                     <td>
+                        <input type='text' size='1' class='letter' id='w5l1'/>
+                        <input type='text' size='1' class='letter' id='w5l2'/>
+                        <input type='text' size='1' class='letter' id='w5l3'/>
+                        <input type='text' size='1' class='letter' id='w5l4'/>
+                        <input type='text' size='1' class='letter' id='w5l5'/>
+                     </td>
+                     <td><span id='w5chk'></span></td>
+                  </tr>
+                  <tr>
+                     <th>6 Letter Word</th>
+                     <td>
+                        <input type='text' size='1' class='letter' id='w6l1'/>
+                        <input type='text' size='1' class='letter' id='w6l2'/>
+                        <input type='text' size='1' class='letter' id='w6l3'/>
+                        <input type='text' size='1' class='letter' id='w6l4'/>
+                        <input type='text' size='1' class='letter' id='w6l5'/>
+                        <input type='text' size='1' class='letter' id='w6l6'/>
+                     </td>
+                     <td><span id='w6chk'></span></td>
+                  </tr>
+               </table>
+            </section>
+         </div>
+         <button onclick="return cdr.start()" disabled="true">Done</button>
+      </div>
+   </div>
+<script>
+(function() {
+  window.cdr = {
+      init: function() {
+         cdr.container = $$("container");
+         cdr.container.appendChild(cdr.genAlphabet());
+         cdr.container.appendChild(cdr.genTable(10, 10, 'p1'));
+         cdr.container.appendChild(cdr.genTable(10, 10, 'p2'));
+
+         var winputs = document.querySelectorAll("input.letter");
+         for (var i=0; i<winputs.length; i++) {
+            winputs[i].addEventListener("change", cdr.updateWords);
+         }
+      },
+      updateWords: function(event) {
+         var tgt = event.target;
+         var matches = tgt.id.match(/w(\d)/);
+         var m = matches[1];
+
+         if (m) {
+            var word = "";
+            for (var i=1; i<m+1; i++) {
+               var el = $$("w"+m+"l"+i);
+               if (el) {
+                  word += el.value.toUpperCase();
+               } else {
+                  word += "";
+               }
+            }
+            console.log(`Checking word: ${word}`);
+            if (cdr.checkWord(word)) {
+               $$('my'+m+'l').innerHTML = word;
+               $$('w'+m+'chk').classList.remove('notok');
+               $$('w'+m+'chk').classList.add('ok');
+            } else {
+               $$('w'+m+'chk').classList.add('notok');
+               $$('w'+m+'chk').classList.remove('ok');
+            }
+         }
+      },
+      checkWord: function(word) {
+         var mydict = dictionary;
+         var letters = word.split("");
+
+         for (var i=0; i<letters.length; i++) {
+            var l = letters[i].toUpperCase();
+            if (mydict[l]) {
+               mydict = mydict[l];
+            } else {
+               return false;
+            }
+         }
+         if (mydict['$']) {
+            return true;
+         }
+      },
+      pickWord: function(len) {
+         var mydict = parentdict = dictionary;
+         var out = "";
+
+         while (out.length<len) {
+            var keys = Object.keys(mydict);
+            var r = Math.round(Math.random()*keys.length);
+            if ((keys[r]!="$") && (keys[r])) {
+               out += keys[r];
+               parentdict = mydict;
+               mydict = mydict[keys[r]];
+            } else {
+      //         out = out.slice(0, -1);
+     //          mydict = parentdict;
+            }
+         }
+         return out;
+      },
+      el: function(tag, id, classname, content) {
+         var el = document.createElement(tag);
+         if (id) el.id = id;
+         if (classname) el.className = classname;
+         if (content) el.innerHTML = content;
+         return el;
+      },
+      genAlphabet: function() {
+         var out = cdr.el("div", "alphabet");
+         for (var i=0; i<26; i++) {
+            out.appendChild(cdr.el("span", String.fromCharCode(65 + i), "alphabet", String.fromCharCode(65 + i)));
+         }
+         return out;
+      },
+      genTable: function(rows, cols, prefix) {
+         var out = cdr.el('table', prefix, 'board');
+         out.addEventListener("mousedown", cdr.handleClick);
+         var tr = cdr.el("tr");
+         tr.appendChild(cdr.el('th', '', 'top left'));
+
+         for (var h=0; h<cols; h++) {
+            tr.appendChild(cdr.el('th', '', 'top', String.fromCharCode(65 + h)));
+         }
+         out.appendChild(tr);
+         for (var r=0; r<rows; r++) {
+            tr = cdr.el('tr');
+            tr.appendChild(cdr.el('th', '', 'left', r + 1));
+            for (var c=0; c<rows; c++) {
+               tr.appendChild(cdr.el('td', prefix + String.fromCharCode(c + 65) + r, 'cell'));
+            }
+            out.appendChild(tr);
+         }
+         return out;
+      },
+      handleClick: function(event) {
+         var tgt = event.target;
+
+         if (tgt.id.match(/p1([A-J])([0-9]+)/)) {
+
+            var txtbox = "<input type='text' id='input' size='1' onchange='return cdr.updateLayout(this.parentNode.id, this.value)' />";
+            tgt.innerHTML = txtbox;
+            setTimeout(function() { 
+               var txtin = $$("input");
+               txtin.focus();
+            }, 100);
+         }
+      },
+      updateLayout: function(who, what) {
+         $$("input").parentNode.removeChild($$("input"));
+         $$(who).appendChild(cdr.el('span', '', '', what));
+         
+      }
+  };
+  cdr.init();
+})();
+function $$(id) {
+   return document.getElementById(id);  
+}
+</script>
+   </body>
+</html>
