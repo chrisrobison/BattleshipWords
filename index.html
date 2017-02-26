@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<meta charset="utf-8">
    <head>
       <title>Battleship Words</title>
       <style>
@@ -9,8 +10,8 @@
          #container { position:relative; }
          td { background-color: rgba(255,255,255,1); }
          td:hover { background-color: rgba(255,255,0,.5); }
-         #p1.board { margin: 1em auto; border: 1em solid #09d; background-color:#fff; border-collapse: collapse; }
-         #p2.board { margin: 1em 1em; border: 1em solid #d00; background-color:#fff; border-collapse: collapse; }
+         #p1.board { margin: 1em auto; border: 1em solid #09d; background-color:#fff; border-collapse: collapse; height:45em; width:45em; transition:all 2s; margin-left:10em;}
+         #p2.board { margin: 1em 1em; border: 1em solid #d00; background-color:#fff; border-collapse: collapse; transition:all 2s; }
          table.#p1 th, table.#p2 th { font-weight: normal; font-family: "Helvetica Neue",Helvetica,sans-serif; font-size:.8em; }
          th.top { background-color:#bbb; color:#000; height:24px; }
          th.left { background-color:#bbb; color:#000; width:24px; }
@@ -30,7 +31,8 @@
          .dialog { 
             position:absolute;
             left:25%;
-            top:18%;
+            top:5%;
+            z-index:9999;
             background-color:#eee;
             display: inline-table;
             border: .5em solid #fff;
@@ -54,39 +56,133 @@
             text-transform: uppercase;
          }
          .dialog section { font-size:1.5em; margin: 0 1em 1em 1em; float:left;}
-         .dialog p { margin: 0 ; padding: 0 ; text-align:left; font-size:.8em; }
-         #wordpick { background-color:#eee; }
+         .dialog p { margin: .5em 0 .5em 0 ; padding: 0 ; text-align:left; font-size:.7em; }
+         #wordpick { width:100%; background-color:#eee; }
          #wordpick td { text-align:left; background-color:#eee; padding-bottom:1em; }
          #wordpick tr { padding-top:.5em; }
-         #scoreboard { display:inline-block; width:15em; color:#ddd; position:absolute; 
+         #scoreboard { display:inline-block; width:15em; color:#ddd; position:absolute;z-index:9999; 
             top:0px;left:0px;bottom:0px;
+            /*
             background: #cedce7;
             background: -moz-linear-gradient(top, #cedce7 0%, #596a72 100%);
             background: -webkit-linear-gradient(top, #cedce7 0%,#596a72 100%);
             background: linear-gradient(to bottom, #cedce7 0%,#596a72 100%);
             filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', endColorstr='#596a72',GradientType=0 );
- 
+            */
+            background-image: url(metal-bg.jpg);
          }
          #scoreboard h1 { 
             margin-top:2em; text-shadow:-2px -2px 2px rgba(0,0,0,.3), 2px 2px 2px rgba(0,0,0,.3), -2px 2px 2px rgba(0,0,0,.3), 2px -2px 2px rgba(0,0,0,.3) ;
          }
          .ok {
             display:inline-block;
-            height:64px;
-            width:64px;
+            height:48px;
+            width:48px;
             background-image:url(ok.png);
             background-repeat: no-repeat;
+            background-size:100% 100%;
          }
          .notok {
             display:inline-block;
-            height:64px;
-            width:64px;
+            height:48px;
+            width:48px;
             background-image:url(notok.png);
             background-repeat: no-repeat;
+            background-size:100% 100%;
 
+         }
+         #wizard2 {
+            display:none;
+         }
+         button.navbtn {
+            font-size:1.7em;
+            padding: 0.2em 0.6em 0.3em 0.5em;
+            margin-right:1em;
+            margin-bottom:1em;
+         }
+         section#mywords {
+            display:inline-block;
+            height:19em;
+            background-color:rgba(200,200,200,.5);
+         }
+         #mywords div, .word {
+            font-size:2em;
+            height:1.2em;
+            letter-spacing:10px;
+            background-color:#000;
+            color:#fff;
+            margin: .25em;
+            padding:2px;
+            width:6.5em;
+            
+         }
+         #mywords div.switch-field {
+           font-family: "Helvetica Neue", Helvetica, Verdana, sans-serif;
+            letter-spacing:0px;
+             overflow: hidden;
+             background-color:transparent;
+         }
+
+         .switch-title {
+           margin-bottom: 6px;
+         }
+
+         .switch-field input {
+             position: absolute !important;
+             clip: rect(0, 0, 0, 0);
+             height: 1px;
+             width: 1px;
+             border: 0;
+             overflow: hidden;
+         }
+
+         .switch-field label {
+           float: left;
+         }
+
+         .switch-field label {
+           display: inline-block;
+           letter-spacing:0px;
+           width: 60px;
+           background-color: #e4e4e4;
+           color: rgba(0, 0, 0, 0.6);
+           font-size: 14px;
+           font-weight: normal;
+           text-align: center;
+           text-shadow: none;
+           padding: 6px 14px;
+           border: 1px solid rgba(0, 0, 0, 0.2);
+           -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+           box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+           -webkit-transition: all 0.1s ease-in-out;
+           -moz-transition:    all 0.1s ease-in-out;
+           -ms-transition:     all 0.1s ease-in-out;
+           -o-transition:      all 0.1s ease-in-out;
+           transition:         all 0.1s ease-in-out;
+         }
+
+         .switch-field label:hover {
+             cursor: pointer;
+         }
+
+         .switch-field input:checked + label {
+           background-color: #00cc00;
+           -webkit-box-shadow: none;
+           box-shadow: none;
+           color:#fff;
+           font-weight:bold;
+         }
+
+         .switch-field label:first-of-type {
+           border-radius: 4px 0 0 4px;
+         }
+
+         .switch-field label:last-of-type {
+           border-radius: 0 4px 4px 0;
          }
       </style>
       <script src="all6.js"></script>
+      <script src="all_by_len.js"></script>
    </head>
    <body>
       <div id="scoreboard">
@@ -99,15 +195,22 @@
                <div id='my4l'></div>
                <div id='my5l'></div>
                <div id='my6l'></div>
+               <div class='switch-field'>
+                  <input id='wordHoriz' class='wordOrientationButton' type='radio' name='orientation' value="horizontal" checked>
+                  <label for='wordHoriz' onclick="">⇄ </label>
+                  <input id='wordVert' class='wordOrientationButton' type='radio' name='orientation' value="vertical">
+                  <label for='wordVert' onclick="">⇅</label>
+               </div>
             </section>
          </div>
       </div>
       <div id="container">
       <div id="newgame" class='dialog'>
          <h1>Battleship: Words</h1>
-         <div class='wizard'>
-            <section id='help'>
-            <p>The goal of Battleship: Words is to find your opponents words before they discover yours. Think Battleship, but with words instead of ships. To begin, choose 5 words from 2 to 6 letters long (one word for each word length).  Words must be valid English and appear in the standard Scrabble dictionary. Once we have your words, we will place them on the playfield.</p>
+         <div id='wizard'>
+            <section class='help'>
+            <p>The goal of Battleship: Words is to find your opponents words before they discover yours. Think Battleship, but with words instead of ships. </p><p>To begin, choose 5 words from 2 to 6 letters long (one word for each word length).  Words must be valid English and appear in the standard Scrabble dictionary.</p><p>Once we have your words, we will place them on the playfield.</p>
+
             </section>
             <section id='picks'>
                <table id='wordpick'>
@@ -164,12 +267,32 @@
                </table>
             </section>
          </div>
-         <button onclick="return cdr.start()" disabled="true">Done</button>
+         <div id="wizard2">
+            <section class='help'>
+            <p>Now that you've selected your words, you need to place them on the playfield.  Select one of the <b>Horizontal</b> or <b>Vertical</b> selectors under your words to place your word left-to-right or up-to-down, respectively.  Click the <b>Next</b> button below to continue.</p>
+            </section>
+
+         </div>
+         <button id='pickRandom' class='navbtn' onclick="return cdr.pickRandomWords()">Pick Random Words</button>
+         <button id='navNext' class='navbtn' style="float:right;" onclick="return cdr.setupNext()" disabled="true">Next</button>
+         <button id='navBack' class='navbtn' style="display:none;float:right;" onclick="return cdr.setupPrev()">Previous</button>
       </div>
    </div>
 <script>
 (function() {
   window.cdr = {
+      state: {
+         setup:0,
+         words:{},
+      },
+      players: [
+         {},
+         {}
+      ],
+      boards: {
+         p1: {},
+         p2: {}
+      },
       init: function() {
          cdr.container = $$("container");
          cdr.container.appendChild(cdr.genAlphabet());
@@ -179,7 +302,175 @@
          var winputs = document.querySelectorAll("input.letter");
          for (var i=0; i<winputs.length; i++) {
             winputs[i].addEventListener("change", cdr.updateWords);
+            //winputs[i].addEventListener("focus", cdr.clearThisValue );
+            winputs[i].addEventListener("keypress", cdr.setupKeypress );
          }
+         for (var i=2; i<7; i++) {
+            $$(`my${i}l`).addEventListener("mousedown", cdr.dragstart);
+         }
+         $$("p1").addEventListener("mouseover", cdr.mouseover);
+      },
+      dragstart: function(event) {
+         console.dir(event);
+         cdr.state.dragging = cdr.el("div", '', 'word', event.target.innerHTML);
+         document.body.appendChild(cdr.state.dragging);
+         document.addEventListener("mousemove", cdr.drag);
+         document.addEventListener("mouseup", cdr.dragend);
+         cdr.state.dragging.style.position = "absolute";
+         cdr.state.dragging.style.top = event.clientY + 'px';
+         cdr.state.dragging.style.left = event.clientX + 'px';
+         cdr.state.dragging.style.zIndex = 9999;
+         event.preventDefault();
+         return false;
+      },
+      drag: function(event) {
+         if (!cdr.state.dragging) return false;
+         cdr.state.dragging.style.top = event.clientY + 'px';
+         cdr.state.dragging.style.left = event.clientX + 'px';
+         event.preventDefault();
+         return false;
+      },
+      dragend: function(event) {
+         if (!cdr.state.dragging) return false;
+         var word = cdr.state.dragging.innerHTML;
+         var letters = word.split('');
+         var papa = $$(`my${letters.length}l`);
+         papa.style.backgroundColor = "#0d0";
+
+         var tgt = event.target, matches;
+         var dir = document.querySelector('input[name="orientation"]:checked').value;
+         document.removeEventListener("mousemove", cdr.drag);
+
+         if (matches = tgt.id.match(/p1([A-J])([0-9]+)/)) {
+            if (dir=="vertical") {
+               var pos = 0;
+               for (var i=matches[2]; i<parseInt(matches[2]) + word.length; i++) {
+                  $$("p1"+matches[1]+i).innerHTML = "<span>" + letters[pos] + "</span>";
+                  pos++;
+               }
+            } else {
+               var col = matches[1].charCodeAt(0) - 65;
+               var pos = 0;
+               for (var i = col; i < col + word.length; i++) {
+                  $$("p1" + String.fromCharCode(i+65) + matches[2]).innerHTML = "<span>" + letters[pos] + "</span>";
+                  pos++;
+               }
+            }
+         }
+         cdr.state.dragging.parentNode.removeChild(cdr.state.dragging);
+         cdr.state.dragging = undefined;
+
+      },
+      mouseover: function(event) {
+         console.log("Mouse Over!");
+         if (!cdr.state.dragging) return;
+         
+         event.target.style.backgroundColor = "#ff0";
+         var tgt = event.target, matches;
+         var wl = cdr.state.dragging.innerHTML.length;
+
+
+         var dir = document.querySelector('input[name="orientation"]:checked').value;
+         if (matches = tgt.id.match(/(p[12])([A-J])([0-9]+)/)) { 
+            if (dir == "vertical") {
+               var pos = matches[3];
+               if ((10 - pos) < wl) {
+                  console.log("Not enough vertical spots: " + (9 - pos));
+                  for (var i=pos; i < 10; i++) {
+                     $$(matches[1]+matches[2]+i).style.backgroundColor = "#c00";
+                  }
+
+               } else {
+                  console.log("Highlighting from " + pos + " to " + (parseInt(pos) + wl));
+                  for (var i=pos; i < parseInt(pos) + wl; i++) {
+                     var el = $$(matches[1]+matches[2]+i);
+                     if (el) el.style.backgroundColor = "#0c0";
+                  }
+               }
+                
+            } else {
+               var pos = matches[2].charCodeAt(0) - 65;
+
+               if ((10 - pos) < wl) {
+                  console.log("Not enough horizontal spots: " + (10 - pos));
+                  for (var i=pos; i < 10; i++) {
+                     $$(matches[1]+String.fromCharCode(i+65)+matches[3]).style.backgroundColor = "#c00";
+                  }
+
+               } else {
+                  console.log("Filling from "+pos+" to "+(pos+wl));
+                  for (var i=pos; i < pos + wl; i++) {
+                     console.log("Setting bgcolor of "+matches[1]+String.fromCharCode(i+65)+matches[3]);
+                     $$(matches[1]+String.fromCharCode(i+65)+matches[3]).style.backgroundColor = "#0c0";
+                  }
+               }
+            }
+         }
+      },
+      mouseout: function(event) {
+         cdr.clearTableColors('p1');
+      },
+      clearTableColors: function(who) {
+         if (!cdr.state.dragging) return;
+         for (var r=0; r<10; r++) {
+            for (var c=0; c<10; c++) {
+               var el = $$(who + String.fromCharCode(c+65) + r);
+               el.style.backgroundColor = "";
+            }
+         }
+      },
+      setupNext: function() {
+         if (cdr.state.setup==0) {
+            cdr.state.setup = 1;
+            $$("wizard").style.display = "none";
+            $$("wizard2").style.display = "inline-block";
+            $$('pickRandom').style.display = "none";
+            $$('navBack').style.display = "inline-block";
+         } else if (cdr.state.setup == 1) {
+            $$("newgame").style.display = "none";
+            cdr.state.setup = 0;
+         }
+      },
+      setupPrev: function() {
+         if (cdr.state.setup==1) {
+            cdr.state.setup = 0;
+            $$("wizard").style.display = "inline-block";
+            $$("wizard2").style.display = "none";
+            $$('pickRandom').style.display = "inline-block";
+            $$('navBack').style.display = "none";
+         }
+      },
+      clearThisValue: function(event) {
+         this.value = "";
+      },
+      setupKeypress: function(event) {
+         var key = event.key.toUpperCase();
+         console.log("key: "+key);
+         if (key.match(/[A-Z]/)) {
+            console.log("made it");
+            var tgt = event.target;
+            // setTimeout(function() { tgt.value = key; }, 100);
+
+            var matches = event.target.id.match(/w(\d)l(\d)/), next;
+            if (matches[1]) {
+               if (matches[2]<matches[1]) {
+                  next = "w"+matches[1]+"l"+(parseInt(matches[2])+1);
+               } else if (matches[1] < 6) {
+                  next = "w" + (parseInt(matches[1]) + 1) + "l1";
+               } else {
+                  next = "w2l1";
+               }
+            }
+            if (next) {
+               $$(next).focus();
+            }
+         } else {
+            return true;
+         }
+      },
+      setupBot: function() {
+         var botwords = cdr.randomWords();
+
       },
       updateWords: function(event) {
          var tgt = event.target;
@@ -197,15 +488,27 @@
                }
             }
             console.log(`Checking word: ${word}`);
-            if (cdr.checkWord(word)) {
+            if ((m == word.length) && cdr.checkWord(word)) {
                $$('my'+m+'l').innerHTML = word;
                $$('w'+m+'chk').classList.remove('notok');
                $$('w'+m+'chk').classList.add('ok');
+               cdr.state.words[m] = word;
+               if (cdr.checkWords()) {
+                  $$("navNext").removeAttribute("disabled");
+               }
             } else {
                $$('w'+m+'chk').classList.add('notok');
                $$('w'+m+'chk').classList.remove('ok');
             }
          }
+      },
+      checkWords: function() {
+         for (var i=2; i<7; i++) {
+            if (!cdr.state.words[i] || cdr.state.words[i].length!=i) {
+               return false;
+            }
+         }
+         return true;
       },
       checkWord: function(word) {
          var mydict = dictionary;
@@ -223,23 +526,37 @@
             return true;
          }
       },
-      pickWord: function(len) {
-         var mydict = parentdict = dictionary;
-         var out = "";
-
-         while (out.length<len) {
-            var keys = Object.keys(mydict);
-            var r = Math.round(Math.random()*keys.length);
-            if ((keys[r]!="$") && (keys[r])) {
-               out += keys[r];
-               parentdict = mydict;
-               mydict = mydict[keys[r]];
-            } else {
-      //         out = out.slice(0, -1);
-     //          mydict = parentdict;
+      randomWords: function() {
+         var words = [], word;
+         for (var i=2; i<7; i++) {
+            word = cdr.pickWord(i);
+            words.push(word);
+         }
+         return words;
+      },
+      pickRandomWords: function() {
+         for (var i=2; i<7; i++) {
+            var word = cdr.pickWord(i);
+            var letters = word.split('');
+            for (var l=0; l<word.length; l++) {
+               var el = $$(`w${i}l${l+1}`);
+               el.value = letters[l];
+               
+               if ("createEvent" in document) {
+                  var evt = document.createEvent("HTMLEvents");
+                  evt.initEvent("change", false, true);
+                  el.dispatchEvent(evt);
+               } else {
+                  el.fireEvent("onchange");
+               }
             }
          }
-         return out;
+      },
+      pickWord: function(len) {
+         return dictByLength[len][cdr.rand(dictByLength[len].length)];
+      },
+      rand: function(len, start=0) {
+         return Math.round(Math.random()*len)+start;
       },
       el: function(tag, id, classname, content) {
          var el = document.createElement(tag);
@@ -269,7 +586,9 @@
             tr = cdr.el('tr');
             tr.appendChild(cdr.el('th', '', 'left', r + 1));
             for (var c=0; c<rows; c++) {
-               tr.appendChild(cdr.el('td', prefix + String.fromCharCode(c + 65) + r, 'cell'));
+               var td = cdr.el('td', prefix + String.fromCharCode(c + 65) + r, 'cell');
+               td.addEventListener("mouseout", cdr.mouseout);
+               tr.appendChild(td);
             }
             out.appendChild(tr);
          }
