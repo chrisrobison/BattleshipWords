@@ -286,8 +286,14 @@
          words:{},
       },
       players: [
-         {},
-         {}
+         {
+            words:{},
+            board:{} 
+         },
+         {
+            words:{},
+            board:{}
+         }
       ],
       boards: {
          p1: {},
@@ -359,13 +365,12 @@
          }
          cdr.state.dragging.parentNode.removeChild(cdr.state.dragging);
          cdr.state.dragging = undefined;
-
+         cdr.clearTableColors();
       },
       mouseover: function(event) {
          console.log("Mouse Over!");
          if (!cdr.state.dragging) return;
          
-         event.target.style.backgroundColor = "#ff0";
          var tgt = event.target, matches;
          var wl = cdr.state.dragging.innerHTML.length;
 
@@ -470,7 +475,7 @@
       },
       setupBot: function() {
          var botwords = cdr.randomWords();
-
+         
       },
       updateWords: function(event) {
          var tgt = event.target;
