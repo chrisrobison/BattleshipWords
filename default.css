@@ -12,17 +12,17 @@ table#p1 td > span, table#p2 td > span {
    transform: scale(0);
    display: inline-block;
 }
-.encrypt { background-image:url(encrypt.gif); background-size:100% 100%; }
-.encrypt2 { background-image:url(encrypt2.gif); background-size:100% 100%; }
-.encrypt3 { background-image:url(encrypt3.gif); background-size:100% 100%; }
-.encrypt4 { background-image:url(encrypt4.gif); background-size:100% 100%; }
+.encrypt { background-image:url(img/encrypt.gif); background-size:100% 100%; }
+.encrypt2 { background-image:url(img/encrypt2.gif); background-size:100% 100%; }
+.encrypt3 { background-image:url(img/encrypt3.gif); background-size:100% 100%; }
+.encrypt4 { background-image:url(img/encrypt4.gif); background-size:100% 100%; }
 span.letter { transition: all 2s cubic-bezier(1,.24,.73,1.53); transform:scale(0); display:inline-block; }
 th.top { background-color:#bbb; color:#000; height:24px; }
 th.left { background-color:#bbb; color:#000; width:24px; }
 table#p1, table#p2 { display:inline-table; margin-left:1em; }
 input#input { font-size:1.8em; font-weight:bold; text-align:center; font-family:"Helvetica Neue",Helvetica,sans-serif; }
-#bomb { background-image:url(bomb.png); background-repeat:no-repeat; }
-.alphabet { display: inline-block; height: 50px; width: 42px; background-image: url(bomb.png); background-repeat: no-repeat; background-size: 100% 100%; padding-top: 1.1em; font-size: 2em; color:#000; 
+#bomb { background-image:url(img/bomb.png); background-repeat:no-repeat; }
+.alphabet { display: inline-block; height: 50px; width: 42px; background-image: url(img/bomb.png); background-repeat: no-repeat; background-size: 100% 100%; padding-top: 1.1em; font-size: 2em; color:#000; 
 filter:invert(1) sepia(1) saturate(50) brightness(.9) hue-rotate(180deg); 
 } 
 .alphabet:active { 
@@ -73,7 +73,7 @@ td.cell span { font-size: 2em; font-weight: bold; }
    background: linear-gradient(to bottom, #cedce7 0%,#596a72 100%);
    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#cedce7', endColorstr='#596a72',GradientType=0 );
    */
-   background-image: url(metal-bg.jpg);
+   background-image: url(img/metal-bg.jpg);
 }
 #scoreboard h1 { 
    margin-top:2em; text-shadow:-2px -2px 2px rgba(0,0,0,.3), 2px 2px 2px rgba(0,0,0,.3), -2px 2px 2px rgba(0,0,0,.3), 2px -2px 2px rgba(0,0,0,.3) ;
@@ -82,7 +82,7 @@ td.cell span { font-size: 2em; font-weight: bold; }
    display:inline-block;
    height:48px;
    width:48px;
-   background-image:url(ok.png);
+   background-image:url(img/ok.png);
    background-repeat: no-repeat;
    background-size:100% 100%;
 }
@@ -90,7 +90,7 @@ td.cell span { font-size: 2em; font-weight: bold; }
    display:inline-block;
    height:48px;
    width:48px;
-   background-image:url(notok.png);
+   background-image:url(img/notok.png);
    background-repeat: no-repeat;
    background-size:100% 100%;
 

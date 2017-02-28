@@ -29,6 +29,8 @@
             winputs[i].addEventListener("change", cdr.updateWords);
             //winputs[i].addEventListener("focus", cdr.clearThisValue );
             winputs[i].addEventListener("keypress", cdr.setupKeypress );
+            winputs[i].addEventListener("focus", cdr.focus );
+            winputs[i].addEventListener("click", cdr.focus );
          }
          for (var i=2; i<7; i++) {
             $$(`my${i}l`).addEventListener("mousedown", cdr.dragstart);
@@ -38,6 +40,9 @@
          cdr.randomBlips("p2");
          cdr.setupBot();
       },
+		focus: function(event) {
+			this.setSelectionRange(0, this.value.length);
+		},
       dragstart: function(event) {
          cdr.state.dragging = cdr.el("div", '', 'word', event.target.innerHTML);
          document.body.appendChild(cdr.state.dragging);
@@ -228,10 +233,10 @@
          setTimeout(function() { cdr.state.blipping = 0; }, 3000);
       },
       placeWords: function(who, words=cdr.players[0].words) {
-         $$("wizard2").style.transform = "scale(0)";
-         setTimeout(function() { $$("wizard2").style.display = "none"; $$("wizard2").style.transform = "scale(1)"; }, 1500);
+         $$("newgame").style.transform = "scale(0)";
+         setTimeout(function() { $$("newgame").style.display = "none"; $$("newgame").style.transform = "scale(1)"; }, 1500);
          var tcnt = 0;
-         for (var i=0; i<words.length - 1; i++) {
+         for (var i=0; i<words.length; i++) {
             var success = 0, cnt = 0;
             do {
                success = cdr.placeWord(words[i], who, tcnt);
