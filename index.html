@@ -7,36 +7,83 @@
       <script src="all6.js"></script>
       <script src="all_by_len.js"></script>
    </head>
-   <body>
+   <body onload="$$('w2l1').focus()">
       <div id="scoreboard">
-         <div class='title'><h1>Battleship: Words</h1></div>
+         <div class='title'>
+				<img id="radar" src="img/radar.gif">
+				<h1>Battleship: Words</h1>
+			</div>
+			<div id='difficultySelector' class='switch-field'>
+				<input id='diff_easy' class='difficultyButton' type='radio' name='difficulty' value="0" checked>
+				<label for='diff_easy' onclick="">Easy</label>
+				<input id='diff_normal' class='difficultyButton' type='radio' name='difficulty' value="1">
+				<label for='diff_normal' onclick="">Normal</label>
+				<input id='diff_hard' class='difficultyButton' type='radio' name='difficulty' value="2">
+				<label for='diff_hard' onclick="">Hard</label>
+			</div>
+
          <div class='mywords'>
             <h1>My Words</h1>
             <section id='mywords'>
-               <div id='my2l'></div>
-               <div id='my3l'></div>
-               <div id='my4l'></div>
-               <div id='my5l'></div>
-               <div id='my6l'></div>
-               <div class='switch-field'>
+               <div id='my2l'>
+						<input type='text' size='1' class='letter' id='w2l1'/>
+						<input type='text' size='1' class='letter' id='w2l2'/>
+						<span id='w2chk'></span>
+					</div>
+               <div id='my3l'>
+						<input type='text' size='1' class='letter' id='w3l1'/>
+						<input type='text' size='1' class='letter' id='w3l2'/>
+						<input type='text' size='1' class='letter' id='w3l3'/>
+						<span id='w3chk'></span>
+					</div>
+               <div id='my4l'>
+						<input type='text' size='1' class='letter' id='w4l1'/>
+						<input type='text' size='1' class='letter' id='w4l2'/>
+						<input type='text' size='1' class='letter' id='w4l3'/>
+						<input type='text' size='1' class='letter' id='w4l4'/>
+						<span id='w4chk'></span>
+					</div>
+               <div id='my5l'>
+						<input type='text' size='1' class='letter' id='w5l1'/>
+						<input type='text' size='1' class='letter' id='w5l2'/>
+						<input type='text' size='1' class='letter' id='w5l3'/>
+						<input type='text' size='1' class='letter' id='w5l4'/>
+						<input type='text' size='1' class='letter' id='w5l5'/>
+						<span id='w5chk'></span>
+					</div>
+               <div id='my6l'>
+						<input type='text' size='1' class='letter' id='w6l1'/>
+						<input type='text' size='1' class='letter' id='w6l2'/>
+						<input type='text' size='1' class='letter' id='w6l3'/>
+						<input type='text' size='1' class='letter' id='w6l4'/>
+						<input type='text' size='1' class='letter' id='w6l5'/>
+						<input type='text' size='1' class='letter' id='w6l6'/>
+						<span id='w6chk'></span>
+					</div>
+					<div class='buttons'>
+						<button id='start' onclick='return cdr.start()' class='button' disabled='true'>GO</button>
+					</div>
+               <div class='switch-field' style='display:none'>
                   <input id='wordHoriz' class='wordOrientationButton' type='radio' name='orientation' value="horizontal" checked>
-                  <label for='wordHoriz' onclick="">⇄ </label>
+                  <label for='wordHoriz' onclick=""><img src='img/btn-horiz.png' height='60' width='60'></label>
                   <input id='wordVert' class='wordOrientationButton' type='radio' name='orientation' value="vertical">
-                  <label for='wordVert' onclick="">⇅</label>
+                  <label for='wordVert' onclick=""><img src='img/btn-vert.png' height='60' width='60'></label>
                </div>
             </section>
          </div>
       </div>
+		<div id="enemy"><h1>Enemy Board</h1></div>
+		<div id="ally"><h1>My Board</h1></div>
       <div id="container">
       <div id="newgame" class='dialog'>
          <h1>Battleship: Words</h1>
          <div id='wizard'>
             <section class='help'>
             <p>The goal of Battleship: Words is to find your opponents words before they discover yours. Think Battleship, but with words instead of ships. </p><p>To begin, choose 5 words from 2 to 6 letters long (one word for each word length).  Words must be valid English and appear in the standard Scrabble dictionary.</p><p>Once we have your words, we will place them on the playfield.</p>
-
             </section>
             <section id='picks'>
-               <table id='wordpick'>
+               <!-- 
+					<table id='wordpick'>
                   <tr>
                      <th>2 Letter Word</th>
                      <td>
@@ -88,6 +135,7 @@
                      <td><span id='w6chk'></span></td>
                   </tr>
                </table>
+					-->
             </section>
          </div>
          <div id="wizard2">

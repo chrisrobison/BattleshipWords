@@ -7,10 +7,12 @@
       players: [
          {
             words:{},
+				placement:{},
             board:{} 
          },
          {
             words:{},
+				placement:{},
             board:{}
          }
       ],
@@ -20,9 +22,11 @@
       },
       init: function() {
          cdr.container = $$("container");
+         cdr.enemy = $$("enemy");
+         cdr.ally = $$("ally");
          cdr.container.appendChild(cdr.genAlphabet());
-         cdr.container.appendChild(cdr.genTable(10, 10, 'p1'));
-         cdr.container.appendChild(cdr.genTable(10, 10, 'p2'));
+         cdr.ally.appendChild(cdr.genTable(10, 10, 'p1'));
+         cdr.enemy.appendChild(cdr.genTable(10, 10, 'p2'));
 
          var winputs = document.querySelectorAll("input.letter");
          for (var i=0; i<winputs.length; i++) {
@@ -44,7 +48,24 @@
 			this.setSelectionRange(0, this.value.length);
 		},
       dragstart: function(event) {
-         cdr.state.dragging = cdr.el("div", '', 'word', event.target.innerHTML);
+			if (!cdr.state.haveWords) return true;
+         var dir = "horizontal"; //document.querySelector('input[name="orientation"]:checked').value;
+			var tgt = event.target;
+			var wl = 0;
+			if (m = tgt.id.match(/my(\d)l/)) {
+				wl = m[1];
+			}
+			var content = cdr.players[0].words[wl];
+			cdr.state.dragword = content;
+			console.log("Dragging word: "+content);
+
+			if (dir == "vertical") {
+				content = content.split("").join("<br>");
+				cdr.state.dragdir = "vertical";
+			} else {
+				cdr.state.dragdir = "horizontal";
+			}
+         cdr.state.dragging = cdr.el("div", '', 'word', content);
          document.body.appendChild(cdr.state.dragging);
          document.addEventListener("mousemove", cdr.drag);
          document.addEventListener("mouseup", cdr.dragend);
@@ -64,54 +85,94 @@
       },
       dragend: function(event) {
          if (!cdr.state.dragging) return false;
-         var word = cdr.state.dragging.innerHTML;
+			cdr.clearTableColors("p1");
+			if (!event.target.id.match(/^p\d/)) {
+				cdr.state.dragging.parentNode.removeChild(cdr.state.dragging);
+				cdr.state.dragging = undefined;
+				return true;
+			}
+         var word = cdr.state.dragword;
          var letters = word.split('');
          var papa = $$(`my${letters.length}l`);
          papa.style.backgroundColor = "#0d0";
-
+			
          var tgt = event.target, matches;
-         var dir = document.querySelector('input[name="orientation"]:checked').value;
+         var dir = cdr.state.dragdir; // document.querySelector('input[name="orientation"]:checked').value;
          document.removeEventListener("mousemove", cdr.drag);
 
          if (matches = tgt.id.match(/p1([A-J])([0-9]+)/)) {
-            if (dir=="vertical") {
-               var pos = 0;
-               for (var i=matches[2]; i<parseInt(matches[2]) + word.length; i++) {
-                  var el = cdr.el('span', '', 'letter', letters[pos]);
-                  $$("p1"+matches[1]+i).appendChild(el);
-                  cdr.showLetter(el, pos*100);
-                  pos++;
-               }
-            } else {
-               var col = matches[1].charCodeAt(0) - 65;
-               var pos = 0;
-               for (var i = col; i < col + word.length; i++) {
-                  $$("p1" + String.fromCharCode(i+65) + matches[2]).innerHTML = "<span>" + letters[pos] + "</span>";
-                  pos++;
-               }
-            }
+				var cell = matches[1] + matches[2];
+				cdr.players[0].placement[cdr.state.dragword] = cell;
+				var col = (dir=="vertical") ? parseInt(matches[2]) : matches[1].charCodeAt(0) - 65;
+				var pos = 0;
+				for (var i=col; i<col + word.length; i++) {
+					var el = cdr.el('span', '', 'letter', letters[pos]);
+					var id = (dir=="vertical") ? "p1" + matches[1] + i : "p1" + String.fromCharCode(i + 65) + matches[2];
+					var d = (dir=="vertical") ? "vert" : "horiz";
+					if (pos == 0) {
+						$$(id).classList.add(d + 'ShipFore');
+					} else if (pos == word.length-1) {
+						$$(id).classList.add(d + 'ShipAft');
+					} else {
+						$$(id).classList.add(d + 'ShipMid');
+					}
+					$$(id).appendChild(el);
+					cdr.showLetter(el, pos * 100);
+					pos++;
+				}
          }
          cdr.state.dragging.parentNode.removeChild(cdr.state.dragging);
          cdr.state.dragging = undefined;
-         cdr.clearTableColors();
+			cdr.state.dragword = undefined;
+			cdr.state.dragdir = undefined;
+         cdr.clearTableColors("p1");
+			if (cdr.checkPlacements(0)) {
+				$$("start").disabled = false;
+			}
       },
       mouseover: function(event) {
          if (!cdr.state.dragging) return;
-         
+         if (!event.target.id.match(/p[12][A-J][0-9]+/)) return;
          var tgt = event.target, matches;
-         var wl = cdr.state.dragging.innerHTML.length;
+         var wl = cdr.state.dragging.innerHTML.replace(/<br>/g, '').length;
+         var dir = cdr.state.dragdir;
 
+			if (cdr.state.lastOver) {
+				console.log("Checking if we should change direction");
+				var l = cdr.state.lastOver.match(/p[12]([A-J])([0-9]+)/);
+				var n = tgt.id.match(/p[12]([A-J])([0-9]+)/);
+				
+				if (l) l[2] = parseInt(l[2]);
+				if (n) n[2] = parseInt(n[2]);
 
-         var dir = document.querySelector('input[name="orientation"]:checked').value;
+				if (cdr.state.dragdir!="vertical" && (n && l && (n[1] == l[1]) && ((n[2] == l[2]-1) || (n[2] == l[2]+1)))) {
+					console.log("Going vertical");
+					dir = "vertical";
+					cdr.state.dragdir = "vertical";
+					cdr.state.dragging.innerHTML = cdr.state.dragging.innerHTML.replace(/<br>/g, '').replace(/(\w)/g, '$1<br>');
+				} else if (cdr.state.dragdir!="horizontal" && (n && l && (n[2] == l[2]) && ((n[1].charCodeAt(0)-65 == l[1].charCodeAt(0)-65 - 1) || (n[1].charCodeAt(0)-65 == l[1].charCodeAt(0)-65 + 1)))) {
+					dir = "horizontal";
+					cdr.state.dragdir = "horizontal";
+					cdr.state.dragging.innerHTML = cdr.state.dragging.innerHTML.replace(/<br>/g, '');
+					console.log("Going horizontal");
+				}
+			}
+
          if (matches = tgt.id.match(/(p[12])([A-J])([0-9]+)/)) { 
             if (dir == "vertical") {
                var pos = matches[3];
-               if ((10 - pos) < wl) {
+               if ((10 - pos) < wl)  {
                   for (var i=pos; i < 10; i++) {
                      $$(matches[1]+matches[2]+i).style.backgroundColor = "#c00";
                   }
 
-               } else {
+               } else if (!cdr.placementOK(cdr.state.dragword, tgt.id, true)) {
+                  for (var i=pos; i < parseInt(pos) + wl; i++) {
+                     var el = $$(matches[1]+matches[2]+i);
+                     if (el) el.style.backgroundColor = "#c00";
+                  }
+
+					} else {
                   for (var i=pos; i < parseInt(pos) + wl; i++) {
                      var el = $$(matches[1]+matches[2]+i);
                      if (el) el.style.backgroundColor = "#0c0";
@@ -126,12 +187,18 @@
                      $$(matches[1]+String.fromCharCode(i+65)+matches[3]).style.backgroundColor = "#c00";
                   }
 
-               } else {
+               } else if (!cdr.placementOK(cdr.state.dragword, tgt.id, false)) {
+                  for (var i=pos; i < parseInt(pos) + wl; i++) {
+                     var el = $$(matches[1]+String.fromCharCode(i+65)+matches[3]);
+                     if (el) el.style.backgroundColor = "#c00";
+                  }
+					} else {
                   for (var i=pos; i < pos + wl; i++) {
                      $$(matches[1]+String.fromCharCode(i+65)+matches[3]).style.backgroundColor = "#0c0";
                   }
                }
             }
+				cdr.state.lastOver = tgt.id;
          }
       },
       mouseout: function(event) {
@@ -146,7 +213,6 @@
          }
       },
       clearTableColors: function(who) {
-         if (!cdr.state.dragging) return;
          for (var r=0; r<10; r++) {
             for (var c=0; c<10; c++) {
                var el = $$(who + String.fromCharCode(c+65) + r);
@@ -207,10 +273,12 @@
          cdr.clearTable("p2");
          var botwords = cdr.randomWords();
          var unplaced = [];
-         cdr.players[1].words = botwords;
+
+         cdr.players[1].words = [];
          pause = 0;
          for (var i=0; i<5; i++) {
-            var placed = cdr.placeWord(botwords[i], "p2", pause);
+				cdr.players[1].words[botwords[i].length] = botwords[i];
+            var placed = cdr.placeWord(botwords[i], "p2", pause, false);
             if (!placed) {
                unplaced.push(botwords[i]);
             } else {
@@ -219,7 +287,7 @@
          }
          var cnt = 0;
          while (botword = unplaced.shift()) {
-            var placed = cdr.placeWord(botword, "p2", pause);
+            var placed = cdr.placeWord(botword, "p2", pause, false);
             if (!placed) {
                unplaced.push(botword);
             } else {
@@ -230,81 +298,101 @@
                unplaced = [];
             }
          }
-         setTimeout(function() { cdr.state.blipping = 0; }, 3000);
+         setTimeout(function() { cdr.state.blipping = 0; }, 5000);
       },
       placeWords: function(who, words=cdr.players[0].words) {
          $$("newgame").style.transform = "scale(0)";
          setTimeout(function() { $$("newgame").style.display = "none"; $$("newgame").style.transform = "scale(1)"; }, 1500);
          var tcnt = 0;
-         for (var i=0; i<words.length; i++) {
-            var success = 0, cnt = 0;
-            do {
-               success = cdr.placeWord(words[i], who, tcnt);
-               ++cnt;
-            } while (!success && cnt<100);
-            tcnt += words[i].length;
+         for (var i in words) {
+				if (words.hasOwnProperty(i)) {
+					var success = 0, cnt = 0;
+					do {
+						success = cdr.placeWord(words[i], who, tcnt);
+						++cnt;
+					} while (!success && cnt<100);
+					tcnt += words[i].length;
+				}
          }
+			if (cdr.checkPlacements(0)) {
+				$$("start").disabled = false;
+			}
       },
       randomBlips: function(who) {
          var r = cdr.rand(9);
          var c = String.fromCharCode(cdr.rand(9)+65);
-         $$(who+c+r).classList.add('blip');
-         setTimeout(function() { $$(who+c+r).classList.remove('blip'); }, cdr.rand(200));
+			var v = cdr.rand(4,1);
+         $$(who+c+r).classList.add('blip'+v);
+         setTimeout(function() { $$(who+c+r).classList.remove('blip'+v); }, cdr.rand(1000));
          if (cdr.state.blipping) {
             setTimeout(function() { cdr.randomBlips(who); }, cdr.rand(10));
          }
       },
-      placeWord: function(word, board, pause=0) {
+		checkPlacements: function(player=0) {
+			var ok = false;
+
+			if (Object.keys(cdr.players[player].placement).length >= 5) {
+				ok = true;
+			}
+			return ok;
+		},
+		placementOK: function(word, cell, vert=false) {
+			var ok = 1,
+			    m = cell.match(/p[12]([A-J])([\d]+)/),
+				 col = m[1].charCodeAt(0) - 65;
+			m[2] = parseInt(m[2]);
+		  
+			for (var i=col; i<col + word.length; i++) {
+				id = (vert) ? String.fromCharCode(65 + i) + m[2] : m[1] + i;
+				if (cdr.players[0].board[id]) {
+					return false;
+				}
+			}
+			return true;
+		},
+      placeWord: function(word, board, pause=0, show=true) {
          var v = (Math.random()>.5) ? true : false,
              s = cdr.rand(9),
              l = word.length,
-             p, id,
+             p = cdr.rand(9 - l), id,
              letters = word.split(''),
              tcnt = pause,
-             player = (board=="p2") ? 1 : 0;
+             player = (board=="p2") ? 1 : 0,
+				 dir = (v) ? "vert" : "horiz";
             
-         if (v) {    // attempt vertical placement
-            p = cdr.rand(9 - l);  
-            id = board + String.fromCharCode(65 + s);
-            var cnt = 0, ok = 1, tp = (p > 0) ? p - 1 : p;
-            for (var i=tp; i<p+word.length; i++) {
-               if (cdr.players[player].board[String.fromCharCode(65 + s) + i]) {
-                  ok = 0;
-                  return;
-               }
-            }
-            if (ok) {
-               for (var i=p; i<p+word.length; i++) {
-                  var el = cdr.el("span", '', 'letter', letters[cnt]);
-                  $$(board + String.fromCharCode(65 + s) + i).appendChild(el);
-                  cdr.showLetter(el, 100*tcnt);
-                  cdr.players[player].board[String.fromCharCode(65 + s) + i] = letters[cnt];
-                  cnt++;
-                  tcnt++;
-               }
-            }
+			var cnt = 0, ok = 1, id, col, tp = (p > 0) ? p - 1 : p;
+			for (var i=tp; i<p+word.length; i++) {
+				id = (v) ? String.fromCharCode(65 + s) + i : String.fromCharCode(65 + i) + s;
+				if (cdr.players[player].board[id]) {
+					ok = 0;
+					return;
+				}
+			}
+			if (ok) {
+				id = (v) ? String.fromCharCode(65 + s) + p : String.fromCharCode(65 + p) + s;
+				cdr.players[player].placement[word] = id;
+				for (var i=p; i<p+word.length; i++) {
+					var el = cdr.el("span", '', 'letter', letters[cnt]);
+					var addclass = "";
+					if (i==p) {
+						addclass = dir + 'ShipFore';
+					} else if (i==(p+word.length-1)) {
+						addclass = dir + 'ShipAft';
+					} else {
+						addclass = dir + 'ShipMid';
+					}
 
-         } else {
-            p = cdr.rand(9 - l);  
-            
-            var cnt = 0, ok = 1;
-            for (var i=p; i<p+word.length; i++) {
-               if (cdr.players[player].board[String.fromCharCode(65 + i) + s]) {
-                  ok = 0;
-                  return;
-               }
-            }
-            if (ok) {
-               for (var i=p; i<p+word.length; i++) {
-                  var el = cdr.el("span", '', 'letter', letters[cnt]);
-                  $$(board + String.fromCharCode(65+i) + s).appendChild(el);
-                  cdr.showLetter(el, 100*tcnt);
-                  cdr.players[player].board[String.fromCharCode(65 + i) + s] = letters[cnt];
-                  cnt++;
-                  tcnt++;
-               }
-            }
-         }
+					id = (v) ? String.fromCharCode(65 + s) + i : String.fromCharCode(65+i) + s;
+					$$(board + id).appendChild(el);
+					if (show) $$(board + id).classList.add(addclass);
+
+					cdr.players[player].board[id] = letters[cnt];
+					if (show) cdr.showLetter(el, 100*tcnt);
+					cnt++;
+					tcnt++;
+				}
+			}
+
          return true;
       },
       showLetter: function(who, delay) {
@@ -323,15 +411,16 @@
                var el = $$("w"+m+"l"+i);
                if (el) {
                   word += el.value.toUpperCase();
+						el.value = el.value.toUpperCase();
                } else {
                   word += "";
                }
             }
             if ((m == word.length) && cdr.checkWord(word)) {
-               $$('my'+m+'l').innerHTML = word;
+               // $$('my'+m+'l').innerHTML = word;
                $$('w'+m+'chk').classList.remove('notok');
                $$('w'+m+'chk').classList.add('ok');
-               cdr.state.words[m] = word;
+               cdr.players[0].words[m] = word;
                if (cdr.checkWords()) {
                   $$("navNext").removeAttribute("disabled");
                }
@@ -343,10 +432,11 @@
       },
       checkWords: function() {
          for (var i=2; i<7; i++) {
-            if (!cdr.state.words[i] || cdr.state.words[i].length!=i) {
+            if (!cdr.players[0].words[i] || cdr.players[0].words[i].length!=i) {
                return false;
             }
          }
+			cdr.state.haveWords = true;
          return true;
       },
       checkWord: function(word) {
@@ -377,7 +467,7 @@
          cdr.players[0].words = [];
          for (var i=2; i<7; i++) {
             var word = cdr.pickWord(i);
-            cdr.players[0].words.push(word);
+            cdr.players[0].words[i] = word;
             var letters = word.split('');
             for (var l=0; l<word.length; l++) {
                var el = $$(`w${i}l${l+1}`);
