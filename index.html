@@ -4,24 +4,43 @@
    <head>
       <title>Battleship Words</title>
       <link rel="stylesheet" type="text/css" href="default.css"/>
+		<link rel="apple-touch-icon" sizes="57x57" href="/img/apple-icon-57x57.png">
+		<link rel="apple-touch-icon" sizes="60x60" href="/img/apple-icon-60x60.png">
+		<link rel="apple-touch-icon" sizes="72x72" href="/img/apple-icon-72x72.png">
+		<link rel="apple-touch-icon" sizes="76x76" href="/img/apple-icon-76x76.png">
+		<link rel="apple-touch-icon" sizes="114x114" href="/img/apple-icon-114x114.png">
+		<link rel="apple-touch-icon" sizes="120x120" href="/img/apple-icon-120x120.png">
+		<link rel="apple-touch-icon" sizes="144x144" href="/img/apple-icon-144x144.png">
+		<link rel="apple-touch-icon" sizes="152x152" href="/img/apple-icon-152x152.png">
+		<link rel="apple-touch-icon" sizes="180x180" href="/img/apple-icon-180x180.png">
+		<link rel="icon" type="image/png" sizes="192x192"  href="/img/android-icon-192x192.png">
+		<link rel="icon" type="image/png" sizes="32x32" href="/img/favicon-32x32.png">
+		<link rel="icon" type="image/png" sizes="96x96" href="/img/favicon-96x96.png">
+		<link rel="icon" type="image/png" sizes="16x16" href="/img/favicon-16x16.png">
+		<link rel="manifest" href="/manifest.json">
+		<meta name="msapplication-TileColor" content="#ffffff">
+		<meta name="msapplication-TileImage" content="/img/ms-icon-144x144.png">
+		<meta name="theme-color" content="#ffffff">
       <script src="all6.js"></script>
       <script src="all_by_len.js"></script>
+      <script src="common-words.js"></script>
    </head>
    <body onload="$$('w2l1').focus()">
+<div id='wrapper'>
       <div id="scoreboard">
          <div class='title'>
 				<img id="radar" src="img/radar.gif">
 				<h1>Battleship: Words</h1>
 			</div>
+			<h1 class='smaller'>Skill Level</h1>
 			<div id='difficultySelector' class='switch-field'>
-				<input id='diff_easy' class='difficultyButton' type='radio' name='difficulty' value="0" checked>
+				<input id='diff_easy' class='difficultyButton' type='radio' name='difficulty' value="0">
 				<label for='diff_easy' onclick="">Easy</label>
-				<input id='diff_normal' class='difficultyButton' type='radio' name='difficulty' value="1">
+				<input id='diff_normal' class='difficultyButton' type='radio' name='difficulty' value="1" checked>
 				<label for='diff_normal' onclick="">Normal</label>
 				<input id='diff_hard' class='difficultyButton' type='radio' name='difficulty' value="2">
 				<label for='diff_hard' onclick="">Hard</label>
 			</div>
-
          <div class='mywords'>
             <h1>My Words</h1>
             <section id='mywords'>
@@ -61,6 +80,7 @@
 						<span id='w6chk'></span>
 					</div>
 					<div class='buttons'>
+						<button id='random' onclick='return cdr.random()' class='button'><img src='img/dice2.png' height='32' width='32'></button>
 						<button id='start' onclick='return cdr.start()' class='button' disabled='true'>GO</button>
 					</div>
                <div class='switch-field' style='display:none'>
@@ -150,6 +170,7 @@
          <button id='navBack' class='navbtn' style="display:none;float:right;" onclick="return cdr.setupPrev()">Previous</button>
       </div>
    </div>
+</div>
    <script src="main.js"></script>
    </body>
 </html>

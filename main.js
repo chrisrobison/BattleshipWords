@@ -27,7 +27,7 @@
          cdr.container.appendChild(cdr.genAlphabet());
          cdr.ally.appendChild(cdr.genTable(10, 10, 'p1'));
          cdr.enemy.appendChild(cdr.genTable(10, 10, 'p2'));
-
+			
          var winputs = document.querySelectorAll("input.letter");
          for (var i=0; i<winputs.length; i++) {
             winputs[i].addEventListener("change", cdr.updateWords);
@@ -40,10 +40,81 @@
             $$(`my${i}l`).addEventListener("mousedown", cdr.dragstart);
          }
          $$("p1").addEventListener("mouseover", cdr.mouseover);
+         $$("p2").addEventListener("mouseenter", cdr.overEnemy);
+         $$("p2").addEventListener("mouseleave", cdr.mouseout);
          cdr.state.blipping = 1;
          cdr.randomBlips("p2");
          cdr.setupBot();
+			$$("alphabet").addEventListener("click", cdr.bombClick);
       },
+		resetBomb: function(now) {
+			cdr.state.armed.style.transition = "all 1s";
+			cdr.state.armed.style.top = "0px";
+			cdr.state.armed.style.left = 325 + (44 * (cdr.state.armedLetter.charCodeAt(0)-65)) + 'px';
+			
+			if (now) {
+					cdr.state.armed.parentNode.removeChild(cdr.state.armed);
+					cdr.state.armed = undefined;
+					cdr.state.armedLetter = "";
+			} else {
+				setTimeout(function() {
+					cdr.state.armed.parentNode.removeChild(cdr.state.armed);
+					cdr.state.armed = undefined;
+					cdr.state.armedLetter = "";
+				}, 1000);
+			}
+		},
+		dropBomb: function(event) {
+			console.dir(event);
+			if (!cdr.state.armed) return false;
+			document.removeEventListener("mousemove", cdr.armedMove);
+			document.removeEventListener("mousedown", cdr.dropBomb);
+			var tgt = event.target;
+			var matches = tgt.id.match(/^(p2)([A-J][0-9]+)/);
+			if (!matches || (matches && !matches[1])) {
+				cdr.resetBomb();
+				return false;
+			}
+			var id = matches[1] + matches[2];
+			var cell = matches[2];
+			cdr.state.armed.style.width = "0px";
+			cdr.state.armed.style.height = "0px";
+			cdr.state.armed.style.marginLeft = "8px";
+			cdr.state.armed.style.marginTop = "-4px";
+			cdr.state.armed.style.fontSize = "0px";
+			
+			setTimeout(function() {
+				var span = $$(id + "Content");
+				span.classList.add('boom');
+			
+				
+				if (cdr.players[1].board[cell] == cdr.state.armedLetter) {
+					$$(id).classList.add('hit');
+					$$(id).classList.remove('hidden');
+					$$(id + "Content").innerHTML = cdr.players[1].board[cell];
+				} else if (cdr.players[1].board[cell]) {
+					$$(id).classList.add('hit');
+					$$(id).classList.remove('hidden');
+					$$(id + "Content").innerHTML = "?";
+				} else {
+					$$(id).classList.add('miss');
+					$$(id + "Content").innerHTML = "&#9679;";
+				}
+				
+				$$(id + "Content").classList.remove('bomb');
+				setTimeout(function() {
+					span.classList.remove('boom');
+					cdr.resetBomb(true);
+				}, 1000);
+			}, 1000);
+
+		},
+		overEnemy: function(event) {
+			var tgt = event.target;
+			var matches = tgt.id.match(/^(p2[A-J][0-9]+)/);
+			if (!matches || (matches && !matches[1])) return false;
+			$$(matches[1]).classList.add("over");
+		},
 		focus: function(event) {
 			this.setSelectionRange(0, this.value.length);
 		},
@@ -102,7 +173,7 @@
 
          if (matches = tgt.id.match(/p1([A-J])([0-9]+)/)) {
 				var cell = matches[1] + matches[2];
-				cdr.players[0].placement[cdr.state.dragword] = cell;
+				cdr.players[0].placement[cdr.state.dragword] = (dir=="vertical") ? cell : "-" + cell;
 				var col = (dir=="vertical") ? parseInt(matches[2]) : matches[1].charCodeAt(0) - 65;
 				var pos = 0;
 				for (var i=col; i<col + word.length; i++) {
@@ -201,9 +272,45 @@
 				cdr.state.lastOver = tgt.id;
          }
       },
+		bombClick: function(event) {
+			if (cdr.state.armed) cdr.resetBomb(true);
+			var tgt = event.target, m;
+			if (m = tgt.id.match(/^([A-Z])$/)) {
+				//var oldsel = document.querySelector(".alphabet.bomb");
+				// if (oldsel) oldsel.classList.remove("bomb");
+				var el = cdr.el("div", "armed", "bomb", tgt.innerHTML);
+				el.style.position = "absolute";
+				el.style.top = event.clientY + "px";
+				el.style.left = event.clientX - 20 + "px";
+				document.body.appendChild(el);
+				cdr.state.armed = el;
+				cdr.state.bomb = m[1];
+				cdr.state.armedLetter = tgt.id;
+				document.body.style.cursor = "url(img/hand.png)";
+				document.addEventListener("mousemove", cdr.armedMove);
+				document.addEventListener("mousedown", cdr.dropBomb);
+			}
+		},
       mouseout: function(event) {
-         cdr.clearTableColors('p1');
+			var tgt = event.target;
+			var matches = tgt.id.match(/(p[12])([A-Z][0-9])/);
+			if (!matches || !matches[1]) return false;
+			
+			cdr.clearTableColors(matches[1]);
+
+			tgt.style.backgroundColor = "";
+			tgt.classList.remove('over');
+//         cdr.clearTableColors('p1');
+//         cdr.clearTableColors('p2');
       },
+		armedMove: function(event) {
+			if (!cdr.state.armed) return false;
+			
+			cdr.state.armed.style.top = event.clientY + "px";
+			cdr.state.armed.style.left = event.clientX - 20 + "px";
+
+
+		},
       clearTable: function(who) {
          for (var r=0; r<10; r++) {
             for (var c=0; c<10; c++) {
@@ -217,6 +324,7 @@
             for (var c=0; c<10; c++) {
                var el = $$(who + String.fromCharCode(c+65) + r);
                el.style.backgroundColor = "";
+               el.classList.remove('over');
             }
          }
       },
@@ -270,7 +378,7 @@
          }
       },
       setupBot: function() {
-         cdr.clearTable("p2");
+//         cdr.clearTable("p2");
          var botwords = cdr.randomWords();
          var unplaced = [];
 
@@ -372,7 +480,13 @@
 				id = (v) ? String.fromCharCode(65 + s) + p : String.fromCharCode(65 + p) + s;
 				cdr.players[player].placement[word] = id;
 				for (var i=p; i<p+word.length; i++) {
-					var el = cdr.el("span", '', 'letter', letters[cnt]);
+					id = (v) ? String.fromCharCode(65 + s) + i : String.fromCharCode(65+i) + s;
+					var el = cdr.el("span", board + id + 'Content', 'letter', letters[cnt]);
+					el.classList.add('cellContent');
+					//var el = $$(board + id + "Content");
+					//el.classList.add('letter');
+					if (show) el.innerHTML = letters[cnt];
+
 					var addclass = "";
 					if (i==p) {
 						addclass = dir + 'ShipFore';
@@ -382,9 +496,13 @@
 						addclass = dir + 'ShipMid';
 					}
 
-					id = (v) ? String.fromCharCode(65 + s) + i : String.fromCharCode(65+i) + s;
+					$$(board + id).innerHTML = "";
 					$$(board + id).appendChild(el);
-					if (show) $$(board + id).classList.add(addclass);
+					$$(board + id).classList.add(addclass);
+					if (!show) {
+						$$(board + id).classList.add("hidden");
+						el.innerHTML = "";
+					}
 
 					cdr.players[player].board[id] = letters[cnt];
 					if (show) cdr.showLetter(el, 100*tcnt);
@@ -483,8 +601,16 @@
             }
          }
       },
+		random: function() {
+			if (!cdr.state.haveWords) {
+				cdr.pickRandomWords();	
+			} else {
+				cdr.placeWords('p1');
+			}
+			return false;
+		},
       pickWord: function(len) {
-         return dictByLength[len][cdr.rand(dictByLength[len].length)];
+         return commonWords[len][cdr.rand(commonWords[len].length)];
       },
       rand: function(len, start=0) {
          return Math.round(Math.random()*len)+start;
@@ -506,7 +632,7 @@
       genTable: function(rows, cols, prefix) {
          var rs = cdr.rand(4, 1);
          var out = cdr.el('table', prefix, 'board unset s' + rs);
-         out.addEventListener("mousedown", cdr.handleClick);
+         // out.addEventListener("mousedown", cdr.handleClick);
          var tr = cdr.el("tr");
          tr.appendChild(cdr.el('th', '', 'top left'));
 
@@ -520,6 +646,8 @@
             for (var c=0; c<rows; c++) {
                var td = cdr.el('td', prefix + String.fromCharCode(c + 65) + r, 'cell');
                td.addEventListener("mouseout", cdr.mouseout);
+					var span = cdr.el('span', prefix + String.fromCharCode(c + 65) + r + 'Content', 'cellContent');
+					td.appendChild(span);
                tr.appendChild(td);
             }
             out.appendChild(tr);
@@ -543,7 +671,24 @@
          $$("input").parentNode.removeChild($$("input"));
          $$(who).appendChild(cdr.el('span', '', '', what));
          
-      }
+      },
+		start: function() {
+			cdr.ally = $$("ally");
+			cdr.enemy = $$("enemy");
+			cdr.p1 = $$("p1");
+
+			cdr.p1.style.fontSize = "0.8em";
+			cdr.ally.style.left = "auto";
+			cdr.ally.style.right = "0px";
+			cdr.ally.style.top = "6em";
+			cdr.ally.style.width = "30em";
+			cdr.ally.style.height = "32em";
+			cdr.ally.style.zIndex = "99999";
+			
+			cdr.enemy.style.transform = "scale(1)";
+			
+			$$("mywords").style.height = "19.2em";
+		}
   };
   cdr.init();
 })();
