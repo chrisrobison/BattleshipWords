@@ -3,14 +3,23 @@
       state: {
          setup:0,
          words:{},
+			currentPlayer:0
       },
+		ai: {
+			checked: {},
+			hits: {},
+			misses: {},
+			letter: 0
+		},
       players: [
          {
+				type: "human",
             words:{},
 				placement:{},
             board:{} 
          },
          {
+				type: "ai",
             words:{},
 				placement:{},
             board:{}
@@ -20,6 +29,7 @@
          p1: {},
          p2: {}
       },
+		letterFreq: ["E","A","S","R","O","I","T","N","L","D","C","U","M","P","H","G","B","Y","F","K","W","V","X","J","Z","Q"],
       init: function() {
          cdr.container = $$("container");
          cdr.enemy = $$("enemy");
@@ -63,6 +73,48 @@
 					cdr.state.armedLetter = "";
 				}, 1000);
 			}
+			cdr.nextPlayer();
+		},
+		nextPlayer: function() {
+			cdr.state.currentPlayer ^= 1;
+			if (cdr.players[cdr.state.currentPlayer].type == "ai") {
+				cdr.moveBot();
+			}
+		},
+		moveBot: function() {
+			var id = "";
+			do {
+				var col = cdr.rand(9);
+				var row = cdr.rand(9);
+				var spot = String.fromCharCode(col + 65) + row;
+				var letter = cdr.letterFreq[cdr.ai.letter];
+				var opponentNumber = cdr.state.currentPlayer ^ 1;
+				id = "p" + (opponentNumber + 1) + spot;
+				
+				if (!cdr.ai.checked[id]) {
+					if (cdr.players[opponentNumber].board[spot] == letter) {
+							$$(id).classList.add('hit');
+							$$(id).classList.remove('hidden');
+							$$(id + "Content").innerHTML = cdr.players[1].board[cell];
+							cdr.ai.hits[spot] = 1;
+							cdr.doHit(id, 1);
+					} else if (cdr.players[opponentNumber].board[spot]) {
+							$$(id).classList.add('hit');
+							$$(id).classList.remove('hidden');
+							$$(id + "Content").innerHTML = "?";
+							cdr.ai.hits[spot] = 1;
+							cdr.doHit(id, .5);
+					} else {
+							$$(id).classList.add('miss');
+							$$(id + "Content").innerHTML = "&#9679;";
+							cdr.ai.misses[spot] = 1;
+					}
+					cdr.ai.checked[spot] = 1;
+				} else {
+					id = "";
+				}
+			} while (!id);
+			cdr.nextPlayer();
 		},
 		dropBomb: function(event) {
 			console.dir(event);
@@ -92,10 +144,12 @@
 					$$(id).classList.add('hit');
 					$$(id).classList.remove('hidden');
 					$$(id + "Content").innerHTML = cdr.players[1].board[cell];
+					cdr.doHit(id, 1);
 				} else if (cdr.players[1].board[cell]) {
 					$$(id).classList.add('hit');
 					$$(id).classList.remove('hidden');
 					$$(id + "Content").innerHTML = "?";
+					cdr.doHit(id, .5);
 				} else {
 					$$(id).classList.add('miss');
 					$$(id + "Content").innerHTML = "&#9679;";
@@ -108,6 +162,19 @@
 				}, 1000);
 			}, 1000);
 
+		},
+		doHit: function(who, size = 1) {
+			var el = $$(who + "Flame") || cdr.el('div', who + "Flame", 'burn');
+			var scale = 1 * size;
+			if (who.match(/^p2/)) {
+				scale *= 2;
+			}
+			if (scale < 1) {
+				el.style.left = "-30%";
+			}
+			el.style.transform = `scale(${scale})`;
+			$$(who).appendChild(el);
+			return el;
 		},
 		overEnemy: function(event) {
 			var tgt = event.target;
@@ -687,7 +754,20 @@
 			
 			cdr.enemy.style.transform = "scale(1)";
 			
-			$$("mywords").style.height = "19.2em";
+			$$("mywords").classList.add('mywordsList'); // .height = "19.2em";
+			var checks = document.querySelectorAll(".ok");
+			for (var i in checks) {
+				if (checks.hasOwnProperty(i)) {
+					checks[i].classList.remove('ok');
+				}
+			}
+			$$("mywords").classList.add('closed');
+			$$("mywordsToggle").classList.remove('open');
+		},
+		toggleWords: function(who, ctl) {
+			$$(who).classList.toggle('closed');	
+			ctl.classList.toggle('open');
+
 		}
   };
   cdr.init();

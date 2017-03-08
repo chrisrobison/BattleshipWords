@@ -564,3 +564,38 @@ div.buttons button#random {
 .hit {
 	background-color:#22ff88;
 }
+#mywords {
+	transition: 1s all;
+}
+.toggle {
+	text-decoration:none;
+	color:#fff;
+	text-shadow:2px 2px 0px #000;
+	display:inline-block;
+	transition: 1s all;
+}
+.open {
+	transform: rotate(45deg);
+}
+section#mywords.mywordsList {
+	height: 19.2em;
+}
+section#mywords.closed {
+	height:0px;
+}
+.burn {
+	position:absolute;
+	opacity:0.8;
+	height:64px;
+	width:64px;
+	top:-30%;
+	left:-.5em;
+	animation: flicker 1.5s steps(50) infinite;
+	background-image: url(img/flame6.gif);
+	display:inline-block;
+	pointer-events:none;
+}
+@keyframes flicker {
+	0% { background-position:0px; }
+	100% { background-position:-3200px; }
+}

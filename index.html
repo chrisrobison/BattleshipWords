@@ -42,7 +42,7 @@
 				<label for='diff_hard' onclick="">Hard</label>
 			</div>
          <div class='mywords'>
-            <h1>My Words</h1>
+            <h1><a class='toggle open' href="#" id='mywordsToggle' onclick="return cdr.toggleWords('mywords',this)">&#8853;</a> My Words</h1>
             <section id='mywords'>
                <div id='my2l'>
 						<input type='text' size='1' class='letter' id='w2l1'/>
@@ -91,7 +91,42 @@
                </div>
             </section>
          </div>
-      </div>
+         <div class='mywords'>
+            <h1><a class='toggle open' href="#" onclick="cdr.toggleWords('enemywords',this)">&#8853;</a> Enemy Words</h1>
+            <section id='enemywords'>
+               <div id='enemy2l'>
+						<span class='letter' id='ew2l1'></span>
+						<span class='letter' id='ew2l2'></span>
+					</div>
+               <div id='enemy3l'>
+						<span class='letter' id='ew3l1'></span>
+						<span class='letter' id='ew3l2'></span>
+						<span class='letter' id='ew3l3'></span>
+					</div>
+               <div id='enemy4l'>
+						<span class='letter' id='ew4l1'></span>
+						<span class='letter' id='ew4l2'></span>
+						<span class='letter' id='ew4l3'></span>
+						<span class='letter' id='ew4l4'></span>
+					</div>
+               <div id='enemy5l'>
+						<span class='letter' id='ew5l1'></span>
+						<span class='letter' id='ew5l2'></span>
+						<span class='letter' id='ew5l3'></span>
+						<span class='letter' id='ew5l4'></span>
+						<span class='letter' id='ew5l5'></span>
+					</div>
+               <div id='enemy6l'>
+						<span class='letter' id='ew6l1'></span>
+						<span class='letter' id='ew6l2'></span>
+						<span class='letter' id='ew6l3'></span>
+						<span class='letter' id='ew6l4'></span>
+						<span class='letter' id='ew6l5'></span>
+						<span class='letter' id='ew6l6'></span>
+					</div>
+				</section>
+			</div>
+	      </div>
 		<div id="enemy"><h1>Enemy Board</h1></div>
 		<div id="ally"><h1>My Board</h1></div>
       <div id="container">
