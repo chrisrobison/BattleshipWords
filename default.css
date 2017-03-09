@@ -301,6 +301,10 @@ section#mywords.don div span { display:none; }
 .blip2 { background-image:url("img/encrypt2.gif"); background-size:100% 100%; }
 .blip3 { background-image:url("img/encrypt3.gif"); background-size:100% 100%; }
 .blip4 { background-image:url("img/encrypt4.gif"); background-size:100% 100%; }
+.blip5 { background-image:url("img/encrypt5.gif"); background-size:100% 100%; }
+.blip6 { background-image:url("img/encrypt6.gif"); background-size:100% 100%; }
+.blip7 { background-image:url("img/encrypt7.gif"); background-size:100% 100%; }
+.blip8 { background-image:url("img/encrypt8.gif"); background-size:100% 100%; }
 .horizShipFore { background-image:url("img/horiz-ship-fore.png"); background-size:100% 100%; }
 .horizShipMid { background-image:url("img/horiz-ship-mid.png"); background-size:100% 100%; }
 .horizShipAft { background-image:url("img/horiz-ship-aft.png"); background-size:100% 100%; }

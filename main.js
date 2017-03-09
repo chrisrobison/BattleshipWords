@@ -9,7 +9,8 @@
 			checked: {},
 			hits: {},
 			misses: {},
-			letter: 0
+			letter: 0,
+			mode: "seek"
 		},
       players: [
          {
@@ -29,7 +30,13 @@
          p1: {},
          p2: {}
       },
-		letterFreq: ["E","A","S","R","O","I","T","N","L","D","C","U","M","P","H","G","B","Y","F","K","W","V","X","J","Z","Q"],
+		extend: function(obj) {
+			for (var i in obj) {
+				if (obj.hasOwnProperty(i)) {
+					cdr[i] = obj[i];
+				}
+			}
+		},
       init: function() {
          cdr.container = $$("container");
          cdr.enemy = $$("enemy");
@@ -81,39 +88,92 @@
 				cdr.moveBot();
 			}
 		},
-		moveBot: function() {
-			var id = "";
-			do {
-				var col = cdr.rand(9);
-				var row = cdr.rand(9);
-				var spot = String.fromCharCode(col + 65) + row;
-				var letter = cdr.letterFreq[cdr.ai.letter];
-				var opponentNumber = cdr.state.currentPlayer ^ 1;
-				id = "p" + (opponentNumber + 1) + spot;
-				
-				if (!cdr.ai.checked[id]) {
-					if (cdr.players[opponentNumber].board[spot] == letter) {
-							$$(id).classList.add('hit');
-							$$(id).classList.remove('hidden');
-							$$(id + "Content").innerHTML = cdr.players[1].board[cell];
-							cdr.ai.hits[spot] = 1;
-							cdr.doHit(id, 1);
-					} else if (cdr.players[opponentNumber].board[spot]) {
-							$$(id).classList.add('hit');
-							$$(id).classList.remove('hidden');
-							$$(id + "Content").innerHTML = "?";
-							cdr.ai.hits[spot] = 1;
-							cdr.doHit(id, .5);
-					} else {
-							$$(id).classList.add('miss');
-							$$(id + "Content").innerHTML = "&#9679;";
-							cdr.ai.misses[spot] = 1;
-					}
-					cdr.ai.checked[spot] = 1;
+		checkSpot: function(spot) {
+			var opponentNumber = cdr.state.currentPlayer ^ 1;
+			var id = "p" + (opponentNumber + 1) + spot;
+			var hit = false;			
+			var letter = cdr.letterFreq[cdr.ai.letter];
+			if (!cdr.ai.checked[id]) {
+				if (cdr.players[opponentNumber].board[spot] == letter) {
+						$$(id).classList.add('hit');
+						$$(id).classList.remove('hidden');
+						$$(id + "Content").innerHTML = cdr.players[0].board[spot];
+						cdr.ai.hits[spot] = 1;
+						cdr.doHit(id, 1);
+						cdr.ai.mode = 'discover';
+						cdr.ai.shipDir = $$(id).className.match(/vert/) ? "v" : "h";
+						cdr.ai.lastMove = spot;
+						hit = true;
+				} else if (cdr.players[opponentNumber].board[spot]) {
+						$$(id).classList.add('hit');
+						$$(id).classList.remove('hidden');
+						$$(id + "Content").innerHTML = "?";
+						cdr.ai.hits[spot] = 1;
+						cdr.doHit(id, .5);
+						cdr.ai.mode = 'discover';
+						cdr.ai.shipDir = $$(id).className.match(/vert/) ? "v" : "h";
+						cdr.ai.lastMove = spot;
+						hit = true;
 				} else {
-					id = "";
+						$$(id).classList.add('miss');
+						$$(id + "Content").innerHTML = "&#9679;";
+						cdr.ai.misses[spot] = 1;
 				}
-			} while (!id);
+				cdr.ai.checked[spot] = 1;
+				
+				return hit;
+			}
+		},
+		moveBot: function() {
+			var hit=false, id = "";
+				
+			if (cdr.ai.mode == 'discover') {
+				if (cdr.ai.lastMove) {
+					var [col, row] = cdr.ai.lastMove.split("", 2);
+					if (cdr.ai.shipDir=="v") {
+						if ((row > 1) && !cdr.ai.checked[col + (row - 1)]) {
+							hit = cdr.checkSpot(col + (row - 1));
+							cdr.ai.lastMove = col + (row - 1);
+						} else if ((row < 9) && !cdr.ai.checked[col + (row + 1)]) {
+							hit = cdr.checkSpot(col + (row + 1));
+							cdr.ai.lastMove = col + (row + 1);
+						} else {
+							cdr.ai.mode = 'seek';
+						}
+					}
+					var c = col.charCodeAt(0)-64;
+					if (cdr.ai.shipDir=="h") {
+						if ((c > 1) && !cdr.ai.checked[String.fromCharCode(c - 1 + 64) + row]) {
+							hit = cdr.checkSpot(String.fromCharCode(c - 1 + 64) + row);
+							cdr.ai.lastMove = String.fromCharCode(c - 1 + 64) + row;
+						} else if ((c < 9) && !cdr.ai.checked[String.fromCharCode(c + 1 + 64) + row]) {
+							hit = cdr.checkSpot(String.fromCharCode(c + 1 + 64) + row);
+							cdr.ai.lastMove = String.fromCharCode(c + 1 + 64) + row;
+						} else {
+							cdr.ai.mode = 'seek';
+						}
+					}
+				}
+			} 
+
+			if (cdr.ai.mode == 'seek') {
+				while (!id) {
+					var col = cdr.rand(9);
+					var row = cdr.rand(9);
+					var spot = String.fromCharCode(col + 65) + row;
+					var opponentNumber = cdr.state.currentPlayer ^ 1;
+					id = spot;
+					
+					if (cdr.ai.checked[spot]) {
+						id = "";
+					} else {
+						var hit = cdr.checkSpot(spot);
+					}
+	
+				}
+
+				
+			}
 			cdr.nextPlayer();
 		},
 		dropBomb: function(event) {
@@ -503,6 +563,23 @@
             setTimeout(function() { cdr.randomBlips(who); }, cdr.rand(10));
          }
       },
+		showEncrypted: function(el, val) {
+			var v = cdr.rand(7,1);
+			el.classList.add('blip'+v);
+			el.value = "";
+			setTimeout(function() { 
+				el.value = val; 
+				el.classList.remove('blip'+v);
+				if ("createEvent" in document) {
+					var evt = document.createEvent("HTMLEvents");
+					evt.initEvent("change", false, true);
+					el.dispatchEvent(evt);
+				} else {
+					el.fireEvent("onchange");
+				}
+
+			}, 200 + cdr.rand(3000, 300));
+		},
 		checkPlacements: function(player=0) {
 			var ok = false;
 
@@ -656,7 +733,7 @@
             var letters = word.split('');
             for (var l=0; l<word.length; l++) {
                var el = $$(`w${i}l${l+1}`);
-               el.value = letters[l];
+               cdr.showEncrypted(el, letters[l]);
                
                if ("createEvent" in document) {
                   var evt = document.createEvent("HTMLEvents");
